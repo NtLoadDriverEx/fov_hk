@@ -5,6 +5,8 @@ VisualStudioVersion = 17.2.32210.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fov_hk", "fov_hk\fov_hk.vcxproj", "{3AA7FA6F-772A-467A-9C01-40EA4B913033}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Loader", "loader\Loader.vcxproj", "{1A58A72C-315D-4501-B73F-B97E81A92937}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{3AA7FA6F-772A-467A-9C01-40EA4B913033}.Release|x64.Build.0 = Release|x64
 		{3AA7FA6F-772A-467A-9C01-40EA4B913033}.Release|x86.ActiveCfg = Release|Win32
 		{3AA7FA6F-772A-467A-9C01-40EA4B913033}.Release|x86.Build.0 = Release|Win32
+		{1A58A72C-315D-4501-B73F-B97E81A92937}.Debug|x64.ActiveCfg = Debug|x64
+		{1A58A72C-315D-4501-B73F-B97E81A92937}.Debug|x64.Build.0 = Debug|x64
+		{1A58A72C-315D-4501-B73F-B97E81A92937}.Debug|x86.ActiveCfg = Debug|x64
+		{1A58A72C-315D-4501-B73F-B97E81A92937}.Debug|x86.Build.0 = Debug|x64
+		{1A58A72C-315D-4501-B73F-B97E81A92937}.Release|x64.ActiveCfg = Release|x64
+		{1A58A72C-315D-4501-B73F-B97E81A92937}.Release|x64.Build.0 = Release|x64
+		{1A58A72C-315D-4501-B73F-B97E81A92937}.Release|x86.ActiveCfg = Release|x64
+		{1A58A72C-315D-4501-B73F-B97E81A92937}.Release|x86.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

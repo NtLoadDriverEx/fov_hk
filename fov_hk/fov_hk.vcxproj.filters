@@ -31,5 +31,11 @@
     <ClInclude Include="pattern.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="hooking.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

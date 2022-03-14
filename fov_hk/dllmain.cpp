@@ -2,38 +2,22 @@
 #include <windows.h>
 #include "lazyimporter.hpp"
 #include "pattern.hpp"
-#include "detours/detours.h"
+#include "hooking.hpp"
+#include "sdk.hpp"
 
-bool add_hook(PVOID* ppPointer, PVOID pDetour, PDETOUR_TRAMPOLINE* ppRealTrampolin = nullptr)
-{
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
-	if (ppRealTrampolin == nullptr)
-		DetourAttach(ppPointer, pDetour);
-	else
-		DetourAttachEx(ppPointer, pDetour, ppRealTrampolin, NULL, NULL);
-
-	if (DetourTransactionCommit() == NO_ERROR)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-/* 14 */
-struct fov_struct
-{
-	BYTE gap0[8];
-	float float8;
-	BYTE gapC[48];
-	float float3C;
-	float packed_fov;
-};
-
-using update_fov_fn = void*(__fastcall*)(fov_struct* fov);
 update_fov_fn update_fov_original;
+#define UWP
 
+#ifdef UWP
+constexpr float uwp_fov = 120.f;
+
+void* update_fov_hk(fov_struct* fov_struct)
+{
+	void* result = update_fov_original(fov_struct);
+	fov_struct->packed_fov = uwp_fov / 78.f;
+	return result;
+}
+#else
 void* update_fov_hk(fov_struct* fov_struct)
 {
 	void* result = update_fov_original(fov_struct);
@@ -48,21 +32,23 @@ void* update_fov_hk(fov_struct* fov_struct)
 	}
 	return result;
 }
-
+#endif
 void hook_fov()
 {
 	const auto begin = (unsigned char*)li::detail::peb()->ImageBaseAddress;
 	const auto nt_headers = li::detail::nt_headers((const char*)begin);
 	const auto end = nt_headers->OptionalHeader.SizeOfImage + begin;
 
-	const auto call_update_fov = FindPattern(begin, end, "E8 ? ? ? ? 41 80 BF ? ? ? ? ? 74 16");
-	if(!call_update_fov) MessageBoxA(nullptr, "Out of Date!", "UPDATE REQUIRED", MB_ICONERROR);
-	// 1 is the offset from the start of the signature to the rva
-	// 5 is the length of the instruction aka a call + 4
+	auto call_update_fov = FindPattern(begin, end, "E8 ? ? ? ? 41 80 BF ? ? ? ? ? 74 16");
+	while(!call_update_fov) call_update_fov = FindPattern(begin, end, "E8 ? ? ? ? 41 80 BF ? ? ? ? ? 74 16");
+
+	if(!call_update_fov) MessageBoxA(nullptr, "Out of date signature - plz dont spam UC <3!", "UPDATE REQUIRED", MB_ICONERROR);
+
 	const auto update_fov = *reinterpret_cast<uint32_t*>(call_update_fov + 1) + call_update_fov + 5;
+
 	update_fov_original = reinterpret_cast<decltype(update_fov_original)>(update_fov);
+
 	add_hook(&(PVOID&)update_fov_original, update_fov_hk);
-	MessageBoxA(nullptr, "Working use +/- to chagne FOV in game!", "Success!", MB_OK);
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -70,17 +56,21 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                        LPVOID lpReserved
                      )
 {
-    switch (ul_reason_for_call)
+    if(ul_reason_for_call == DLL_PROCESS_ATTACH)
     {
-    case DLL_PROCESS_ATTACH:
-		DisableThreadLibraryCalls(hModule);
+    	DisableThreadLibraryCalls(hModule);
         hook_fov();
-		break;
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
+		MessageBoxA(nullptr, "Working use +/- to chagne FOV in game!", "Success!", MB_OK);
+
     }
+	else if(ul_reason_for_call == DLL_PROCESS_DETACH)
+    {
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+		DetourDetach(&(PVOID&)update_fov_original, update_fov_hk);
+		DetourTransactionCommit();
+    }
+
     return TRUE;
 }
 
