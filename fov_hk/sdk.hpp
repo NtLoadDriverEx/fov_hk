@@ -10,4 +10,4 @@ struct fov_struct
 	float packed_fov;
 };
 
-using update_fov_fn = void*(__fastcall*)(fov_struct* fov);
+using update_fov_fn = void*(__fastcall*)(fov_struct* fov, float a2);
